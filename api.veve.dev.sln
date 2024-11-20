@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api.veve.dev", "api.veve.dev\api.veve.dev.csproj", "{4E3B7673-F2FD-4D65-84A2-EDF0E081AFB0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4E3B7673-F2FD-4D65-84A2-EDF0E081AFB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E3B7673-F2FD-4D65-84A2-EDF0E081AFB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E3B7673-F2FD-4D65-84A2-EDF0E081AFB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E3B7673-F2FD-4D65-84A2-EDF0E081AFB0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5B46C7E6-88FD-43A7-AA2C-DA4AF6B3F9BA}
+	EndGlobalSection
+EndGlobal
