@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.OpenApi.Models;
 using veve.Authentication;
 using veve.Services;
 
@@ -8,12 +10,13 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddLogging();
 
-builder.Services.AddAuthentication(ApiKeyDefaults.AuthenticationScheme);
-builder.Services.AddAuthorization(options =>
+builder.Services.AddAuthentication().AddScheme<ApiKeyAuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(ApiKeyDefaults.AuthenticationScheme, (options) =>
 {
-    options.FallbackPolicy = options.DefaultPolicy;
+    builder.Configuration.GetRequiredSection(ApiKeyDefaults.AuthenticationScheme).Bind(options);
 });
+builder.Services.AddAuthorization();
 
 builder.Services.AddCors(options =>
 {
@@ -41,6 +44,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

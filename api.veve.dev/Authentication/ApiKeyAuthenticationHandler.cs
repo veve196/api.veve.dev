@@ -3,46 +3,40 @@ using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 
-namespace veve.Authentication;
-
-public class ApiKeyAuthenticationHandler(
-    IOptionsMonitor<AuthenticationSchemeOptions> options,
-    ILoggerFactory logger,
-    UrlEncoder encoder,
-    TimeProvider timeProvider,
-    IConfiguration configuration)
-    : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
+namespace veve.Authentication
 {
-    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+    public class ApiKeyAuthenticationHandler(
+        IOptionsMonitor<ApiKeyAuthenticationSchemeOptions> options,
+        ILoggerFactory logger,
+        UrlEncoder encoder,
+        TimeProvider timeProvider,
+        IConfiguration configuration)
+        : AuthenticationHandler<ApiKeyAuthenticationSchemeOptions>(options, logger, encoder)
     {
-        string? apiKeyHeader = configuration["Authentication:ApiKeyHeader"];
-        string? apiKey = configuration["Authentication:ApiKey"];
+        protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
+        {
+#if !DEBUG
+            if (!Request.Headers.TryGetValue(Options.HeaderName, out var apiKeyHeaderValues))
+                return AuthenticateResult.Fail("API Key was not provided.");
 
-        if (apiKeyHeader is null || apiKey is null)
-            throw new Exception("Authentication configuration is invalid.");
+            if (apiKeyHeaderValues.Count > 1)
+                return AuthenticateResult.Fail("Multiple API keys found in request. Please only provide one key.");
 
-        if (!Request.Headers.TryGetValue(apiKeyHeader, out var apiKeyHeaderValues))
-            return Task.FromResult(AuthenticateResult.Fail("API Key was not provided."));
+            if (string.IsNullOrEmpty(Options.ApiKey) || !Options.ApiKey.Equals(apiKeyHeaderValues.FirstOrDefault()))
+                return AuthenticateResult.Fail("Invalid API key.");
+#endif
+            List<Claim> claims =
+            [
+                new Claim(ClaimTypes.NameIdentifier, Options.ApiKey),
+                new Claim(ClaimTypes.Name, "API Key User"),
+                new Claim(ClaimTypes.Role, "ReadOnly")
+            ];
 
-        string? clientApiKey = apiKeyHeaderValues.FirstOrDefault();
+            ClaimsIdentity identity = new(claims, Scheme.Name);
+            ClaimsPrincipal principal = new(identity);
+            AuthenticationTicket ticket = new(principal, Scheme.Name);
 
-        if (clientApiKey is null)
-            return Task.FromResult(AuthenticateResult.Fail("API Key was not provided."));
-
-        if (clientApiKey != apiKey)
-            return Task.FromResult(AuthenticateResult.Fail("Invalid API Key provided."));
-
-        var claims = new[] { new Claim(ClaimTypes.Name, "VALID_USER") };
-        var identity = new ClaimsIdentity(claims, ApiKeyDefaults.AuthenticationScheme);
-        var identities = new[] { identity };
-        var principal = new ClaimsPrincipal(identities);
-        var ticket = new AuthenticationTicket(principal, ApiKeyDefaults.AuthenticationScheme);
-
-        return Task.FromResult(AuthenticateResult.Success(ticket));
+            return AuthenticateResult.Success(ticket);
+        }
     }
-}
-
-public static class ApiKeyDefaults
-{
-    public static string AuthenticationScheme { get; set; } = "ApiKey";
 }
