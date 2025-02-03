@@ -1,0 +1,46 @@
+name: Deploy ASP.NET Core Web API
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Publish
+      run: dotnet publish -c Release -o out
+
+    - name: Copy files via SSH
+      run: |
+        scp -o StrictHostKeyChecking=no -r out/* ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/var/www/api.veve.dev/
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+        SSH_HOST: ${{ secrets.SSH_HOST }}
+        SSH_PASSPHRASE: ${{ secrets.SSH_PASSPHRASE }}
+
+    - name: Restart application via SSH
+      uses: appleboy/ssh-action@v0.1.0
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          sudo systemctl restart yourapp.service

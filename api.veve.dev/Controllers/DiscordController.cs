@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using veve.Authentication;
 using veve.Services;
 
 namespace veve.Controllers
@@ -31,6 +30,7 @@ namespace veve.Controllers
 
         [HttpGet("spotify/{userId}")]
         public async Task<IActionResult> GetSpotifyActivity(ulong userId)
+        {
         {
             try
             {

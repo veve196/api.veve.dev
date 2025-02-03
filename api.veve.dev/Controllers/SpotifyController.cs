@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SpotifyAPI.Web;
 using veve.Services;
 
 namespace veve.Controllers
