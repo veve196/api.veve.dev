@@ -34,8 +34,6 @@ jobs:
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-        eval "$(ssh-agent -s)"
-        ssh-add ~/.ssh/id_rsa
         
     - name: Copy files via SSH
       run: |
@@ -44,7 +42,6 @@ jobs:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
         SSH_HOST: ${{ secrets.SSH_HOST }}
-        SSH_PASSPHRASE: ${{ secrets.SSH_PASSPHRASE }}
 
     - name: Restart application via SSH
       uses: appleboy/ssh-action@v0.1.0
