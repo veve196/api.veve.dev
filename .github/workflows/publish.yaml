@@ -50,4 +50,4 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          sudo systemctl restart yourapp.service
+          sudo systemctl restart api-veve.service
