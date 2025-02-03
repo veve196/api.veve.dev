@@ -37,7 +37,7 @@ jobs:
         
     - name: Copy files via SSH
       run: |
-        scp -v -o StrictHostKeyChecking=no -r out/* ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/var/www/api.veve.dev/
+        scp -i ~/.ssh/id_rsa -v -o StrictHostKeyChecking=no -o BatchMode=yes -r out/* ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/var/www/api.veve.dev/
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
