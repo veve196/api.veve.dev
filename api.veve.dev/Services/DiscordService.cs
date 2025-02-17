@@ -41,7 +41,7 @@ namespace veve.Services
             {
                 Id = user.Id,
                 AvatarUrl = user.AvatarUrl,
-                Status = user.Presence.Status.ToString()
+                Status = user.Presence.Status.ToString().ToLower()
             };
         }
 
@@ -68,7 +68,7 @@ namespace veve.Services
             return new SpotifyActivity
             {
                 Title = spotifyActivity.RichPresence.Details,
-                Artists = spotifyActivity.RichPresence.State,
+                Artist = spotifyActivity.RichPresence.State,
                 Album = spotifyActivity.RichPresence.LargeImageText,
                 CoverUrl = spotifyActivity.RichPresence.LargeImage.Url,
                 StartDate = spotifyActivity.RichPresence.StartTimestamp,
