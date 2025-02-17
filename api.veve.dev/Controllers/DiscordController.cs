@@ -36,9 +36,6 @@ public class DiscordController(ILogger<DiscordController> logger, DiscordService
             {
                 var spotifyActivity = await service.GetSpotifyActivityAsync(userId);
 
-                if (spotifyActivity is null)
-                    return new JsonResult(new { });
-
                 return new JsonResult(spotifyActivity);
             }
             catch (Exception ex)
