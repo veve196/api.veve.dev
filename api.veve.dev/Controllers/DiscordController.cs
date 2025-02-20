@@ -9,7 +9,7 @@ namespace veve.Controllers;
 [Authorize]
 public class DiscordController(ILogger<DiscordController> logger, DiscordService service) : ControllerBase
 {
-    [HttpGet("/Users/{userId}")]
+    [HttpGet("Users/{userId}")]
     public async Task<IActionResult> GetUser(ulong userId)
     {
         try
