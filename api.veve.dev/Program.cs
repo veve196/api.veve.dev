@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.OpenApi.Models;
 using veve.Authentication;
 using veve.Services;
 

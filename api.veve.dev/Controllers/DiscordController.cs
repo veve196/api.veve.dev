@@ -9,7 +9,7 @@ namespace veve.Controllers;
 [Authorize]
 public class DiscordController(ILogger<DiscordController> logger, DiscordService service) : ControllerBase
 {
-    [HttpGet("{userId}")]
+    [HttpGet("/Users/{userId}")]
     public async Task<IActionResult> GetUser(ulong userId)
     {
         try
@@ -19,34 +19,34 @@ public class DiscordController(ILogger<DiscordController> logger, DiscordService
         }
         catch (Exception ex)
         {
-            string errorMsg = $"Failed to get Discord user with id {userId}";
-            logger.LogError(ex, errorMsg);
-            return StatusCode(500, new
+            logger.LogError(ex, "Failed to get Discord user with id {userId}", userId);
+            return StatusCode(500, new ProblemDetails
             {
-                error = errorMsg
+                Status = 500,
+                Title = "An error occurred while processing your request.",
+                Detail = ex.Message
             });
         }
     }
 
-    [HttpGet("spotify/{userId}")]
+    [HttpGet("Users/{userId}/Spotify")]
     public async Task<IActionResult> GetSpotifyActivity(ulong userId)
     {
+        try
         {
-            try
-            {
-                var spotifyActivity = await service.GetSpotifyActivityAsync(userId);
+            var spotifyActivity = await service.GetSpotifyActivityAsync(userId);
 
-                return new JsonResult(spotifyActivity);
-            }
-            catch (Exception ex)
+            return new JsonResult(spotifyActivity);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to get Spotify activity for user with id {userId}", userId);
+            return StatusCode(500, new ProblemDetails
             {
-                string errorMsg = $"Failed to get Spotify status for user with id {userId}";
-                logger.LogError(ex, errorMsg);
-                return StatusCode(500, new
-                {
-                    error = errorMsg
-                });
-            }
+                Status = 500,
+                Title = "An error occurred while processing your request.",
+                Detail = ex.Message
+            });
         }
     }
 }

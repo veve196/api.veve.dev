@@ -1,6 +1,4 @@
-﻿using DSharpPlus.Entities;
-
-namespace veve.Models.Discord
+﻿namespace veve.Models.Discord
 {
     public class User
     {

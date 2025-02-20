@@ -8,5 +8,7 @@
         public required Uri CoverUrl { get; set; } // RichPresence.LargeImage.Url
         public DateTimeOffset? StartDate { get; set; }
         public DateTimeOffset? EndDate { get; set; }
+
+        public TimeSpan? SongLength => EndDate - StartDate;
     }
 }
