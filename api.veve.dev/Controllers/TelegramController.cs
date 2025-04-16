@@ -34,6 +34,7 @@ namespace veve.Controllers
         }
 
         [HttpGet("Sticker/{fileId}")]
+        [AllowAnonymous]
         public async Task<IActionResult> Sticker(string fileId)
         {
             try
