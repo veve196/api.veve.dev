@@ -1,3 +1,4 @@
+using Telegram.Bot;
 using veve.Authentication;
 using veve.Services;
 
@@ -27,7 +28,8 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddSingleton<DiscordService>();
-
+builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(builder.Configuration["Telegram:Token"]!));
+builder.Services.AddSingleton<TelegramService>();
 var app = builder.Build();
 
 var discordService = app.Services.GetRequiredService<DiscordService>();
