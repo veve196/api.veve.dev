@@ -27,7 +27,7 @@ namespace veve.Controllers
                 });
             }
 
-            string baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
+            string baseUrl = $"https://{Request.Host}{Request.PathBase}";
             string[] stickerUrls = fileIds.Select(fileId => $"{baseUrl}/Telegram/Sticker/{fileId}").ToArray();
 
             return new JsonResult(stickerUrls);
