@@ -1,53 +1,89 @@
-name: Deploy ASP.NET Core Web API
+name: Build and Push .NET API to Harbor
 
 on:
-  workflow_dispatch:
   push:
+    branches:
+      - main
+  pull_request:
     branches:
       - main
 
 jobs:
-  build:
+  build-and-push:
+    name: Build and Push Docker Image
     runs-on: ubuntu-latest
+    env:
+      DISCORD_CLIENT_ID: ${{secrets.DISCORD_CLIENT_ID}}
+      DISCORD_CLIENT_SECRET: ${{secrets.DISCORD_CLIENT_SECRET}}
+      TELEGRAM_TOKEN: ${{secrets.TELEGRAM_TOKEN}}
+      API_KEY: ${{secrets.API_KEY}}
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Set up .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '9.0.x'
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "9.0.x"
 
-    - name: Restore dependencies
-      run: dotnet restore
+      # Create appsettings.json from template and secrets
+      - name: Create appsettings.json
+        run: |
+          cat > api.veve.dev/appsettings.json << EOF
+          {
+            "Logging": {
+              "LogLevel": {
+                "Default": "Information",
+                "Microsoft.AspNetCore": "Warning"
+              }
+            },
+            "AllowedHosts": "localhost;*.veve.dev;veve.dev",
+            "Discord": {
+              "ClientId": "${{ secrets.DISCORD_CLIENT_ID }}",
+              "Token": "${{ secrets.DISCORD_CLIENT_SECRET }}",
+              "Prefix": [ "!" ]
+            },
+            "Telegram": {
+              "Token": "${{ secrets.TELEGRAM_TOKEN }}"
+            },
+            "ApiKeyAuthentication": {
+              "ApiKeyHeader": "X-Api-Key",
+              "ApiKey": "${{ secrets.API_KEY }}"
+            }
+          }
+          EOF
 
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
+      # Get version from project file
+      - name: Get Version
+        id: get_version
+        run: |
+          VERSION=$(grep -oPm1 "(?<=<Version>)[^<]+" api.veve.dev/*.csproj || echo "1.0.0")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-    - name: Publish
-      run: dotnet publish -c Release -o out
-      
-    - name: Add SSH key
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-        
-    - name: Copy files via SSH
-      run: |
-        scp -i ~/.ssh/id_rsa -v -o StrictHostKeyChecking=no -o BatchMode=yes -r out/* ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/var/www/api.veve.dev/
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-        SSH_HOST: ${{ secrets.SSH_HOST }}
+      # Prepare the Docker image
+      - name: Log in to Harbor Registry
+        uses: docker/login-action@v3
+        with:
+          registry: harbor.fayevr.dev
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Restart application via SSH
-      uses: appleboy/ssh-action@v0.1.0
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USERNAME }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-          sudo systemctl restart api-veve.service
+      - name: Build Docker Image
+        run: |
+          docker build \
+            --build-arg BUILD_CONFIGURATION=Release \
+            -t harbor.fayevr.dev/veve/api.veve.dev:${{ env.VERSION }} \
+            -t harbor.fayevr.dev/veve/api.veve.dev:latest \
+            -f api.veve.dev/Dockerfile .
+
+      # Push the Docker image to Harbor
+      - name: Push Docker Image
+        run: |
+          docker push harbor.fayevr.dev/veve/api.veve.dev:${{ env.VERSION }}
+          docker push harbor.fayevr.dev/veve/api.veve.dev:latest
+
+      # Trigger deployment webhook
+      - name: Trigger Deployment
+        run: |
+          curl https://manage.fayevr.dev/api/deploy/lF8FcOaudCvddpVBSYHDL
