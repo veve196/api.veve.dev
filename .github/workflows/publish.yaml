@@ -73,15 +73,15 @@ jobs:
         run: |
           docker build \
             --build-arg BUILD_CONFIGURATION=Release \
-            -t harbor.fayevr.dev/fleet/api.veve.dev:${{ env.VERSION }} \
-            -t harbor.fayevr.dev/fleet/api.veve.dev:latest \
+            -t harbor.fayevr.dev/veve/api.veve.dev:${{ env.VERSION }} \
+            -t harbor.fayevr.dev/veve/api.veve.dev:latest \
             -f api.veve.dev/Dockerfile .
 
       # Push the Docker image to Harbor
       - name: Push Docker Image
         run: |
-          docker push harbor.fayevr.dev/fleet/api.veve.dev:${{ env.VERSION }}
-          docker push harbor.fayevr.dev/fleet/api.veve.dev:latest
+          docker push harbor.fayevr.dev/veve/api.veve.dev:${{ env.VERSION }}
+          docker push harbor.fayevr.dev/veve/api.veve.dev:latest
 
       # Trigger deployment webhook
       - name: Trigger Deployment
