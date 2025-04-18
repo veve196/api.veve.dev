@@ -7,7 +7,7 @@ namespace veve.Controllers
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class TelegramController(TelegramService service) : Controller
+    public class TelegramController(TelegramService service, IWebHostEnvironment webHostEnvironment) : BaseController(webHostEnvironment)
     {
         [HttpGet("Stickers/{stickerSetName}")]
         public async Task<IActionResult> GetStickerSet(string stickerSetName)
@@ -23,7 +23,8 @@ namespace veve.Controllers
                 return StatusCode(500, new ProblemDetails
                 {
                     Status = 500,
-                    Title = "An error occurred while processing your request."
+                    Title = "An error occurred while processing your request.",
+                    Detail = GetErrorDetails(ex)
                 });
             }
 
@@ -61,7 +62,8 @@ namespace veve.Controllers
                 return StatusCode(500, new ProblemDetails
                 {
                     Status = 500,
-                    Title = "An error occurred while processing your request."
+                    Title = "An error occurred while processing your request.",
+                    Detail = GetErrorDetails(ex)
                 });
             }
 

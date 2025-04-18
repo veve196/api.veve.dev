@@ -8,23 +8,25 @@ namespace veve.Authentication
     public class ApiKeyAuthenticationHandler(
         IOptionsMonitor<ApiKeyAuthenticationSchemeOptions> options,
         ILoggerFactory logger,
-        UrlEncoder encoder,
-        TimeProvider timeProvider,
-        IConfiguration configuration)
+        UrlEncoder encoder)
         : AuthenticationHandler<ApiKeyAuthenticationSchemeOptions>(options, logger, encoder)
     {
-        protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
+        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
 #if !DEBUG
             if (!Request.Headers.TryGetValue(Options.HeaderName, out var apiKeyHeaderValues))
-                return AuthenticateResult.Fail("API Key was not provided.");
+                return Task.FromResult(AuthenticateResult.Fail("API Key was not provided."));
 
             if (apiKeyHeaderValues.Count > 1)
-                return AuthenticateResult.Fail("Multiple API keys found in request. Please only provide one key.");
+                return Task.FromResult(AuthenticateResult.Fail("Multiple API keys found in request. Please only provide one key."));
 
             if (string.IsNullOrEmpty(Options.ApiKey) || !Options.ApiKey.Equals(apiKeyHeaderValues.FirstOrDefault()))
-                return AuthenticateResult.Fail("Invalid API key.");
+                return Task.FromResult(AuthenticateResult.Fail("Invalid API key."));
 #endif
+
+            if (Options.ApiKey is null)
+                return Task.FromResult(AuthenticateResult.Fail("API key is not configured."));
+
             List<Claim> claims =
             [
                 new Claim(ClaimTypes.NameIdentifier, Options.ApiKey),
@@ -36,7 +38,7 @@ namespace veve.Authentication
             ClaimsPrincipal principal = new(identity);
             AuthenticationTicket ticket = new(principal, Scheme.Name);
 
-            return AuthenticateResult.Success(ticket);
+            return Task.FromResult(AuthenticateResult.Success(ticket));
         }
     }
 }

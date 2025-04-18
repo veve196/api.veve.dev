@@ -4,7 +4,7 @@ using Telegram.Bot.Types;
 
 namespace veve.Services
 {
-    public class TelegramService(ILogger<TelegramService> logger, IConfiguration config, ITelegramBotClient botClient)
+    public class TelegramService(IConfiguration config, ITelegramBotClient botClient)
     {
         public async Task<string[]> GetStickerFileIds(string stickerSetName)
         {
