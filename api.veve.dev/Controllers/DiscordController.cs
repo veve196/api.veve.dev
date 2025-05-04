@@ -7,6 +7,7 @@ namespace veve.Controllers;
 [ApiController]
 [Route("[controller]")]
 [Authorize]
+[ResponseCache(NoStore = true, Duration = 0)]
 public class DiscordController(ILogger<DiscordController> logger, DiscordService service) : ControllerBase
 {
     [HttpGet("Users/{userId}")]
