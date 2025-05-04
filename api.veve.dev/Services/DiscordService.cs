@@ -71,8 +71,8 @@ namespace veve.Services
                 Artist = spotifyActivity.RichPresence.State,
                 Album = spotifyActivity.RichPresence.LargeImageText,
                 CoverUrl = spotifyActivity.RichPresence.LargeImage.Url,
-                StartDate = spotifyActivity.RichPresence.StartTimestamp,
-                EndDate = spotifyActivity.RichPresence.EndTimestamp
+                StartDate = spotifyActivity.RichPresence.StartTimestamp?.ToUniversalTime(),
+                EndDate = spotifyActivity.RichPresence.EndTimestamp?.ToUniversalTime()
             };
         }
     }
