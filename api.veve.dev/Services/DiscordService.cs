@@ -41,7 +41,7 @@ namespace veve.Services
             {
                 Id = user.Id,
                 AvatarUrl = user.AvatarUrl,
-                Status = user.Presence.Status.ToString().ToLower()
+                Status = user.Presence?.Status.ToString().ToLower()
             };
         }
 

@@ -4,6 +4,6 @@
     {
         public required ulong Id { get; set; }
         public required string AvatarUrl { get; set; }
-        public required string Status { get; set; }
+        public required string? Status { get; set; }
     }
 }
